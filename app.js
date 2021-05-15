@@ -5,9 +5,9 @@ const genere = require('./genre');
 const app = express();
 app.use(express.json());
 app.use('/', test);
-app.use('/api/genre', genere)
+app.use('/api/genres', genere)
 
-console.log(test);
+console.log(genere);
 const portNo = process.env.PORT || 2500;
 
 
