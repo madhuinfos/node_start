@@ -3,8 +3,10 @@ const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/mongo-ex1').then(async () => {
   console.log('mongdo db connected');
   // await craeteCourses();
-  await findPublishedCourses();
+  await findPublishedByInTitle();
   //console.log('courses created');
+
+  await updateCourse('60b9a3d684c1ea369844e246');
 });
 
 const courseSchema = new mongoose.Schema({
@@ -18,7 +20,7 @@ const courseSchema = new mongoose.Schema({
 
 const Course = mongoose.model('Course', courseSchema);
 
-async function findPublishedCourses() {
+async function findPublishedBackendCourses() {
   const courses = await Course.find({ isPublished: true, tags: 'backend' })
     .sort({ name: 1 })
     .select({
@@ -26,6 +28,42 @@ async function findPublishedCourses() {
       author: 1,
     });
   console.log(courses);
+}
+
+async function findPublishedCourses() {
+  const courses = await Course.find({
+    isPublished: true,
+    tags: { $in: ['frontend', 'backend'] },
+  })
+    .sort({ price: -1 })
+    .select({ name: 1, author: 1, price: 1 });
+
+  console.log(courses);
+}
+
+async function findPublishedByInTitle() {
+  const courses = await Course.find({
+    isPublished: true,
+  })
+    .or([{ price: { $gte: 15 } }, { name: /.*by.*/i }])
+    .select({ name: 1, author: 1, price: 1 });
+
+  console.log(courses);
+}
+
+async function updateCourse(id) {
+  const course = await Course.findById(id);
+
+  console.log('course with the id: ', id, course);
+
+  if (course) {
+    course.isPublished = true;
+    course.date = Date.now();
+
+    course.save();
+
+    console.log('course with name {0} is updated', course.name);
+  }
 }
 
 async function craeteCourses() {
